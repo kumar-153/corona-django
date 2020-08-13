@@ -1,6 +1,10 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User
+from .models import Contact
+from django.conf import settings
+from django.core import mail
+from django.core.mail.message import EmailMessage
 
 # Create your views here.
 def index(request):
@@ -45,6 +49,10 @@ def handlelogin(request):
     
     return render(request,'home/index.html')
 
+def handlelogout(request):
+    logout(request)
+    return render(request,'home/index.html')
+
 def blogPost(request):
     return render(request,'home/blogPost.html')
 
@@ -55,4 +63,23 @@ def about(request):
     return render(request,'home/about.html')
 
 def contact(request):
+    if (request.method=="POST"):
+        name=request.POST.get('name')
+        email=request.POST.get('email')
+        phone=request.POST.get('num')
+        desc=request.POST.get('desc')
+        from_email=settings.EMAIL_HOST_USER
+        # print(name,email,phone,desc)
+        contact=Contact(name=name,email=email,phone=phone,desc=desc)
+        contact.save()
+        connection=mail.get_connection()
+        connection.open()
+        email1=mail.EmailMessage(name,desc,from_email,['kumar.153@iitj.ac.in'],connection=connection)
+        connection.send_messages([email1])
+        connection.close()
+        return HttpResponse("Record has been sent")
+        
+        
+        return redirect('/')
+
     return render(request,'home/contact.html')
