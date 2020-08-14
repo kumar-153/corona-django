@@ -5,6 +5,7 @@ from .models import Contact
 from django.conf import settings
 from django.core import mail
 from django.core.mail.message import EmailMessage
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -18,17 +19,27 @@ def handleSignup(request):
         email=request.POST['email']
         pass1=request.POST['pass1']
         pass2=request.POST['pass2']
+
         if len(username)>10:
-            return HttpResponse("username should be less than 10 characters")
+            messages.warning(request,'username should be less than 10 characters')
+            return redirect('/')
         if not username.isalnum():
-            return HttpResponse("username should contain only letters and numbers")
+            messages.warning(request,'username should contain only letters and numbers')
+            return redirect('/')
         if pass1!=pass2:
-            return HttpResponse("password is incorrect")
-        
+            messages.warning(request,'password is incorrect')
+            return redirect('/')
+        try:
+            if User.objects.get(username=username):
+                messages.warning(request,'Username already taken')
+                return redirect('/')
+        except Exception as identifier:
+            pass    
         myuser= User.objects.create_user(username,email,pass1)
         myuser.first_name=fname
         myuser.last_name=lname
         myuser.save()
+        messages.success(request,'Signup successful Please Login')
         return redirect('/')
 
         
@@ -42,9 +53,13 @@ def handlelogin(request):
         user=authenticate(username=loginusername,password=loginpassword)
         if user is not None:
             login(request,user)
-            return HttpResponse("login success")
+            messages.info(request,'Login Success')
+            return redirect('/')
         else:
-            return HttpResponse("invalid credentials")
+            messages.error(request,'Invalid Credentials')
+            return redirect('/')
+
+            
     
     
     return render(request,'home/index.html')
@@ -72,14 +87,15 @@ def contact(request):
         # print(name,email,phone,desc)
         contact=Contact(name=name,email=email,phone=phone,desc=desc)
         contact.save()
+        # your mail starts here
         connection=mail.get_connection()
         connection.open()
-        email1=mail.EmailMessage(name,desc,from_email,['kumar.153@iitj.ac.in'],connection=connection)
-        connection.send_messages([email1])
+        #email1=mail.EmailMessage(name,desc,from_email,['kumar.153@iitj.ac.in'],connection=connection)
+        email_admin=mail.EmailMessage(f'Email From {name}',f'Description :{desc} \n Email Address : {email} \n Phone : {phone}',from_email,['kumar.153@iitj.ac.in'],connection=connection)
+        email_client=mail.EmailMessage('HARSHblog','Thanks for contacting us we will get back to you soon \n Thank You',from_email,[email],connection=connection)
+        connection.send_messages([email_admin,email_client])
         connection.close()
-        return HttpResponse("Record has been sent")
-        
-        
-        return redirect('/')
+        messages.warning(request,f'Thanks for Contacting Us {name}')
+        return redirect('/contact')
 
     return render(request,'home/contact.html')
