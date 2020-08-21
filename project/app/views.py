@@ -1,11 +1,13 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from .models import Contact,Friendspost,Adminspost
 from django.conf import settings
 from django.core import mail
 from django.core.mail.message import EmailMessage
 from django.contrib import messages
+import csv,io
 
 # Create your views here.
 def index(request):
@@ -138,3 +140,18 @@ def contact(request):
         return redirect('/contact')
 
     return render(request,'home/contact.html')
+
+
+@login_required
+def contact_download(request):
+    items=Contact.objects.all()
+    response=HttpResponse(content_type='text/csv')
+    response['Content-Disposition']='attachment; filename="contact.csv"'
+    writer= csv.writer(response,delimiter=',')
+    writer.writerow(['id','name','email','phone','desc'])
+
+    for obj in items:
+        writer.writerow([obj.id,obj.name,obj.email,obj.phone,obj.desc])
+    return response
+
+    return redirect('/')
