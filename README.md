@@ -1,0 +1,2 @@
+# Short Intro about me and this small Web App
+Hello, I am Harsh Kumar. Currently a Sophomore year student pursuing Computer Science Engineering from IIT Jodhpur. My friends call me Dassa as I outperformed almost every one in first year. Now in second year I am focussing on other things. I am passionate about Cricket. Got a little oftopic coming back to this project this is just an implemation of basics concepts while learning Web Development. Your suggestions are most welcome.
