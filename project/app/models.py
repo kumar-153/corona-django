@@ -11,7 +11,7 @@ class Contact(models.Model):
 
 class Friendspost(models.Model):
     sno=models.AutoField(primary_key=True)
-    title=models.CharField(max_length=50)   
+    title=models.CharField(max_length=200)   
     content=models.TextField()
     author=models.CharField(max_length=50)
     img=models.ImageField(upload_to='friends',blank=True,null=True)
@@ -22,7 +22,7 @@ class Friendspost(models.Model):
         return self.author
 
 class Adminspost(models.Model):
-    title=models.CharField(max_length=50)   
+    title=models.CharField(max_length=200)   
     content=models.TextField()
     author=models.CharField(max_length=50)
     img=models.ImageField(upload_to='friends',blank=True,null=True)
